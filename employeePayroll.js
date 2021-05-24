@@ -1,8 +1,8 @@
-//function to calculate daily wage
+//function to calculte daily wage
 function calcDailyWage(empHrs){
     return empHrs*WAGE_PER_HOUR;
 }
-//function to get total working hours 
+// function to get employee working hours
 function getWorkingHours(empCheck){
     switch(empCheck){
         case IS_PART_TIME:
@@ -23,51 +23,37 @@ const NUM_OF_WORKING_DAYS=20;
 const WAGE_PER_HOUR=20;
 let totalEmpHrs=0;
 let totalWorkingDays=0;
-let empDailyWageArray=new Array();
-let empDailyWageMap=new Map();
-let empDailyHrsMap=new Map();
+let empDailyHrsAndWageArray=new Array();
 //
 while (totalEmpHrs<=MAX_HRS_IN_MONTH&&totalWorkingDays<NUM_OF_WORKING_DAYS){
     totalWorkingDays++;
     let empCheck=Math.floor(Math.random()*10)%3;
     let empHrs=getWorkingHours(empCheck);
     totalEmpHrs+=empHrs;
-    //store daily wage into array
-    empDailyWageArray.push(calcDailyWage(empHrs));
-    //store working days and employee hours
-    empDailyHrsMap.set(totalWorkingDays,empHrs);
-    //store working days and daily wage
-    empDailyWageMap.set(totalWorkingDays,calcDailyWage(empHrs));
+    //store values into array by overriding toSting method
+    empDailyHrsAndWageArray.push({
+        dayNum:totalWorkingDays,
+        dailyHours:empHrs,
+        dailyWage:calcDailyWage(empHrs),
+        toString(){
+            return '\nDay'+this.dayNum+'=>working Hours is '+this.dailyHours+'  And Wage Earned = '+this.dailyWage
+        
+        },
+    });
 }
-console.log(empDailyWageMap);
-//function to find total wage
-function totalWages(totalWage,dailyWAge){
-    return totalWage+dailyWAge;
-}
-//let empWage=calcDailyWage(totalEmpHrs);
-console.log("uC 8A-employeemap total hours: "+Array.from(empDailyWageMap.values()).reduce(totalWages,0));
 
-//console.log("total emp hours="+totalEmpHrs);
-//uc9 arrow function
-const findTotal=(totalVal,dailyVal)=>{
-return totalVal+dailyVal;
-}
-let count=0;
-let totalHours=Array.from(empDailyHrsMap.values()).reduce(findTotal,0);
-let totalSalary=empDailyWageArray.filter(dailyWAge=>dailyWAge>0).reduce(findTotal,0);
-console.log("UC9 -empWage with arrow.: "+" Total Hours: "+
-    totalHours+" TotalWage: "+totalSalary);
-let nonWorkingDays=new Array();
-let partWorkingDays=new Array();
-let fullWorkingDays=new Array();
-//push values into full working day,part time working day and non working day arrays
-empDailyHrsMap.forEach((value,key,map)=> {
-    if(value==8) fullWorkingDays.push(key);
-    else if(value==4) partWorkingDays.push(key);
-    else nonWorkingDays.push(key);
+console.log("UC10 showing Daily Hours Worked and Wage Earned: "+empDailyHrsAndWageArray);
+//calculating ttal wages and total hours worked
+let totalWages=empDailyHrsAndWageArray.filter(dailyHrsAndWage=>dailyHrsAndWage.dailyWage>0).reduce((totalWage,dailyHrsAndWage)=>totalWage+=dailyHrsAndWage.dailyWage,0);
+let totalHours=empDailyHrsAndWageArray.filter(dailyHrsAndWage=>dailyHrsAndWage.dailyWage>0).reduce((totalHours,dailyHrsAndWage)=>totalHours+=dailyHrsAndWage.dailyHours,0);
+console.log("UC11A total Hours: "+totalHours+" Total Wages: "+totalWages);
+process.stdout.write("UC 11B Logging full work days")
+//show the full working days using for each method
+empDailyHrsAndWageArray.filter(dailyHrsAndWage=>dailyHrsAndWage.dailyHours==8).forEach(dailyHrsAndWage=>process.stdout.write(dailyHrsAndWage.toString()));
+//show parttime working days using map reduce to String array 
+let partWorkingDayStrArray=empDailyHrsAndWageArray.filter(dailyHrsAndWage=>dailyHrsAndWage.dailyHours==4).map(dailyHrsAndWage=>dailyHrsAndWage.toString());
+console.log("UC11 c part working days string: "+partWorkingDayStrArray);
+//show non working days using map
+let nonWorkingDayStrArray=empDailyHrsAndWageArray.filter(dailyHrsAndWage=>dailyHrsAndWage.dailyHours==0).map(dailyHrsAndWage=>dailyHrsAndWage.toString());
+console.log("UC11 D non working days string: "+nonWorkingDayStrArray);
 
-    
-}); 
-console.log("full working days: "+fullWorkingDays);
-console.log("partWorking days: "+partWorkingDays);
-console.log("non working days: "+nonWorkingDays);
